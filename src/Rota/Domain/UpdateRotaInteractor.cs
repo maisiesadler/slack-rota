@@ -1,20 +1,29 @@
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Options;
 using Rota.Domain.Commands;
 using Rota.Domain.Queries;
 
 namespace Rota.Domain;
 
+public record RotaOptions
+{
+    public string? ExcludeUsers { get; init; }
+}
+
 public class UpdateRotaInteractor
 {
+    private readonly IOptions<RotaOptions> _rotaOptions;
     private readonly IGetCurrentSlackTopicQuery _getCurrentSlackTopicQuery;
     private readonly IGetSlackUsersQuery _getSlackUsersQuery;
     private readonly IUpdateSlackTopicCommand _updateSlackTopicCommand;
 
     public UpdateRotaInteractor(
+        IOptions<RotaOptions> rotaOptions,
         IGetCurrentSlackTopicQuery getCurrentSlackTopicQuery,
         IGetSlackUsersQuery getSlackUsersQuery,
         IUpdateSlackTopicCommand updateSlackTopicCommand)
     {
+        _rotaOptions = rotaOptions;
         _getCurrentSlackTopicQuery = getCurrentSlackTopicQuery;
         _getSlackUsersQuery = getSlackUsersQuery;
         _updateSlackTopicCommand = updateSlackTopicCommand;
@@ -30,7 +39,7 @@ public class UpdateRotaInteractor
         await _updateSlackTopicCommand.Execute(nextTopic);
     }
 
-    private static string GetNextTopic(string currentTopic, SlackUser[] users)
+    private string GetNextTopic(string currentTopic, SlackUser[] users)
     {
         var currentUser = GetCurrentUser(currentTopic);
 
@@ -39,8 +48,8 @@ public class UpdateRotaInteractor
 
         var orderedUsers = users.OrderBy(u => u.userId).ToArray();
 
-        var nextUserIndex = GetNextUserIndex(currentUser, orderedUsers);
-        var selectedUser = orderedUsers[nextUserIndex];
+        var currentUserIndex = GetCurrentUserIndex(currentUser, orderedUsers);
+        var selectedUser = GetNextUserAfter(currentUserIndex ?? -1, orderedUsers);
 
         return $"Next user: {$"<@{selectedUser.userId}>"}";
     }
@@ -53,15 +62,35 @@ public class UpdateRotaInteractor
         return match.Groups[1].Value;
     }
 
-    private static int GetNextUserIndex(string? currentUser, SlackUser[] orderedUsers)
+    private static int? GetCurrentUserIndex(string? currentUser, SlackUser[] orderedUsers)
     {
-        if (currentUser == null) return 0;
+        if (currentUser == null) return null;
 
         for (int i = 0; i < orderedUsers.Length; i++)
         {
-            if (orderedUsers[i].userId == currentUser) return (i + 1) % orderedUsers.Length;
+            if (orderedUsers[i].userId == currentUser) return i;
         }
 
-        return 0;
+        return null;
+    }
+
+    private SlackUser GetNextUserAfter(int afterIndex, SlackUser[] orderedUsers)
+    {
+        var excludedUsers = new HashSet<string>(_rotaOptions.Value?.ExcludeUsers?.Split('|') ?? Array.Empty<string>());
+        for (int i = afterIndex + 1; i < orderedUsers.Length; i++)
+        {
+            var user = orderedUsers[i];
+            if (!excludedUsers.Contains(user.userId))
+                return user;
+        }
+
+        for (int i = 0; i < orderedUsers.Length; i++)
+        {
+            var user = orderedUsers[i];
+            if (!excludedUsers.Contains(user.userId))
+                return user;
+        }
+
+        throw new InvalidOperationException("Could not find next user");
     }
 }
