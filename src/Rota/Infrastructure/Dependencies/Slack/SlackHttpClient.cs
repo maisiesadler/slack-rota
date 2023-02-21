@@ -1,16 +1,15 @@
 using System.Net.Http.Json;
 
-namespace Rota;
+namespace Rota.Infrastructure.Dependencies.Slack;
 
 public interface ISlackHttpClient
 {
     Task Execute(string text);
 }
 
-public class SlackHttpClient : ISlackHttpClient
+internal class SlackHttpClient : ISlackHttpClient
 {
     private readonly HttpClient _httpClient;
-    private readonly SlackReporterConfiguration _config = new SlackReporterConfiguration();
 
     public SlackHttpClient(HttpClient httpClient)
     {
@@ -19,12 +18,12 @@ public class SlackHttpClient : ISlackHttpClient
 
     public async Task Execute(string text)
     {
-        var channel = _config.Channel;
+        var channel = SlackReporterConfiguration.Channel;
 
         var payload = new { channel, text };
 
         var url = "https://slack.com/api/chat.postMessage";
-        _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _config.Token);
+        _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", SlackReporterConfiguration.Token);
 
         var r = await _httpClient.PostAsJsonAsync(url, payload);
 

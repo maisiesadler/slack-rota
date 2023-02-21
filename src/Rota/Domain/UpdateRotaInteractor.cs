@@ -1,18 +1,19 @@
 using Rota.Domain.Commands;
+using Rota.Infrastructure.Dependencies.Slack;
 
 namespace Rota.Domain;
 
 public class UpdateRotaInteractor
 {
-    private readonly IUpdateRotaCommand _updateRotaCommand;
+    private readonly IUpdateSlackTopicCommand _updateRotaCommand;
 
-    public UpdateRotaInteractor(IUpdateRotaCommand updateRotaCommand)
+    public UpdateRotaInteractor(IUpdateSlackTopicCommand updateRotaCommand)
     {
         _updateRotaCommand = updateRotaCommand;
     }
 
     public async Task Execute()
     {
-        await _updateRotaCommand.Execute();
+        await _updateRotaCommand.Execute(SlackReporterConfiguration.Channel, "hello, world");
     }
 }

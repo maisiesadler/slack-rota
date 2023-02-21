@@ -1,9 +1,9 @@
-namespace Rota;
+namespace Rota.Infrastructure.Dependencies.Slack;
 
-public class SlackReporterConfiguration
+internal static class SlackReporterConfiguration
 {
-    public string Channel => GetVariable("SLACK_ALERT_CHANNEL");
-    public string Token => GetVariable("SLACK_TOKEN");
+    public static string Channel => GetVariable("SLACK_ALERT_CHANNEL");
+    public static string Token => GetVariable("SLACK_TOKEN");
 
     private static string GetVariable(string variable)
     {
