@@ -21,11 +21,22 @@ public class UpdateRotaInteractor
 
     public async Task Execute()
     {
-        var topic = await _getCurrentSlackTopicQuery.Execute(); ;
+        var currentTopic = await _getCurrentSlackTopicQuery.Execute(); ;
         var users = await _getSlackUsersQuery.Execute();
-        if (users != null && users.Length > 0)
-            await _updateSlackTopicCommand.Execute($"Available: {string.Join(", ", users.Select(u => $"<@{u.userId}>"))}");
-        else
-            await _updateSlackTopicCommand.Execute(topic + "d");
+
+        var nextTopic = GetNextTopic(users);
+        await _updateSlackTopicCommand.Execute(nextTopic);
+    }
+
+    private static string GetNextTopic(SlackUser[] users)
+    {
+        var orderedUsers = users.OrderBy(u => u.userId).ToArray();
+
+        if (orderedUsers.Length == 0)
+            return "No users found";
+
+        var selectedUser = orderedUsers[0];
+
+        return $"Next user: {$"<@{selectedUser.userId}>"}";
     }
 }

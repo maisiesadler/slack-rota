@@ -25,34 +25,32 @@ public class UpdateRotaInteractorTests
     }
 
     [Fact]
-    public async Task CurrentTopicRetrieved_AppendsLetterToTopic()
+    public async Task NoUsers_SetToEmpty()
     {
         // Arrange
-        _getCurrentSlackTopicQuery.Setup(q => q.Execute())
-            .ReturnsAsync("This is the current topic");
+        _getCurrentSlackTopicQuery.Setup(q => q.Execute()).ReturnsAsync("This is the current topic");
+        _getSlackUsersQuery.Setup(q => q.Execute()).ReturnsAsync(Array.Empty<SlackUser>());
 
         // Act
         await _interactor.Execute();
 
         // Assert
-        _getCurrentSlackTopicQuery.Verify(c => c.Execute(), Times.Once);
-        _updateSlackTopicCommand.Verify(c => c.Execute("This is the current topicd"), Times.Once);
+        _updateSlackTopicCommand.Verify(c => c.Execute("No users found"), Times.Once);
     }
 
     [Fact]
-    public async Task UsersRetrieved_TopicSetToAllUsers()
+    public async Task CurrentUserNotKnown_ChooseUserAlphabetically()
     {
         // Arrange
         _getCurrentSlackTopicQuery.Setup(q => q.Execute())
-            .ReturnsAsync("This is the current topic");
+            .ReturnsAsync("Current user not known");
         _getSlackUsersQuery.Setup(q => q.Execute())
-            .ReturnsAsync(new[] { new SlackUser("U123456"), new SlackUser("U987654") });
+            .ReturnsAsync(new[] { new SlackUser("U23456"), new SlackUser("U123456"), new SlackUser("U34567") });
 
         // Act
         await _interactor.Execute();
 
         // Assert
-        _getCurrentSlackTopicQuery.Verify(c => c.Execute(), Times.Once);
-        _updateSlackTopicCommand.Verify(c => c.Execute("Available: <@U123456>, <@U987654>"), Times.Once);
+        _updateSlackTopicCommand.Verify(c => c.Execute("Next user: <@U123456>"), Times.Once);
     }
 }
