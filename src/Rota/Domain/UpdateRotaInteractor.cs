@@ -18,7 +18,7 @@ public class UpdateRotaInteractor
 
     public async Task Execute()
     {
-        var topic = await _getCurrentSlackTopicQuery.Execute();
-        await _updateSlackTopicCommand.Execute("hello, world");
+        var topic = await _getCurrentSlackTopicQuery.Execute();;
+        await _updateSlackTopicCommand.Execute(topic + "d");
     }
 }

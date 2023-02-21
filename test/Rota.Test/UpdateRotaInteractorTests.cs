@@ -22,17 +22,7 @@ public class UpdateRotaInteractorTests
     }
 
     [Fact]
-    public async Task InteractorUpdatesTopic()
-    {
-        // Act
-        await _interactor.Execute();
-
-        // Assert
-        _updateSlackTopicCommand.Verify(c => c.Execute("hello, world"), Times.Once);
-    }
-
-    [Fact]
-    public async Task InteractorReversesTopic()
+    public async Task InteractorAppendsLetterToTopic()
     {
         // Arrange
         _getCurrentSlackTopicQuery.Setup(q => q.Execute())
@@ -43,6 +33,6 @@ public class UpdateRotaInteractorTests
 
         // Assert
         _getCurrentSlackTopicQuery.Verify(c => c.Execute(), Times.Once);
-        _updateSlackTopicCommand.Verify(c => c.Execute("hello, world"), Times.Once);
+        _updateSlackTopicCommand.Verify(c => c.Execute("This is the current topicd"), Times.Once);
     }
 }

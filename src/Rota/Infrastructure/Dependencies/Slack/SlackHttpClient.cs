@@ -1,13 +1,21 @@
-using System.Net.Http.Json;
+namespace Rota.Infrastructure.Commands;
 
-namespace Rota.Infrastructure.Dependencies.Slack;
-
-public interface ISlackHttpClient
+public class SlackHttpException : Exception
 {
-    Task Execute(string text);
+    public SlackHttpException(string errorContent)
+    {
+        ErrorContent = errorContent;
+    }
+
+    public string ErrorContent { get; }
+
+    public override string ToString()
+    {
+        return $"{GetType().Name}: '{ErrorContent}'";
+    }
 }
 
-internal class SlackHttpClient : ISlackHttpClient
+public class SlackHttpClient
 {
     private readonly HttpClient _httpClient;
 
@@ -16,33 +24,26 @@ internal class SlackHttpClient : ISlackHttpClient
         _httpClient = httpClient;
     }
 
-    public async Task Execute(string text)
+    public async Task<string> Run(Func<HttpClient, Task<HttpResponseMessage>> command)
     {
-        var channel = SlackReporterConfiguration.Channel;
+        var r = await command(_httpClient);
 
-        var payload = new { channel, text };
-
-        var url = "https://slack.com/api/chat.postMessage";
-        _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", SlackReporterConfiguration.Token);
-
-        var r = await _httpClient.PostAsJsonAsync(url, payload);
-
-        System.Console.WriteLine(r.StatusCode);
-        if (TryGetErrorMessage(await r.Content.ReadAsStringAsync(), out var errorMessage))
+        var content = await r.Content.ReadAsStringAsync();
+        if (TryGetErrorMessage(content))
         {
-            System.Console.WriteLine("Slack error: " + errorMessage);
+            throw new SlackHttpException(content);
         }
+
+        return content;
     }
 
     // Slack return a 200 status code even when the payload is an error - this is a work-around
-    private bool TryGetErrorMessage(string content, out string? errorMessage)
+    private bool TryGetErrorMessage(string content)
     {
         if (content.Contains("error"))
         {
-            errorMessage = content;
             return true;
         }
-        errorMessage = "";
         return false;
     }
 }
