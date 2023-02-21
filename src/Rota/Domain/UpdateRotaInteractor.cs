@@ -1,19 +1,24 @@
 using Rota.Domain.Commands;
-using Rota.Infrastructure.Dependencies.Slack;
+using Rota.Domain.Queries;
 
 namespace Rota.Domain;
 
 public class UpdateRotaInteractor
 {
-    private readonly IUpdateSlackTopicCommand _updateRotaCommand;
+    private readonly IGetCurrentSlackTopicQuery _getCurrentSlackTopicQuery;
+    private readonly IUpdateSlackTopicCommand _updateSlackTopicCommand;
 
-    public UpdateRotaInteractor(IUpdateSlackTopicCommand updateRotaCommand)
+    public UpdateRotaInteractor(
+        IGetCurrentSlackTopicQuery getCurrentSlackTopicQuery,
+        IUpdateSlackTopicCommand updateSlackTopicCommand)
     {
-        _updateRotaCommand = updateRotaCommand;
+        _getCurrentSlackTopicQuery = getCurrentSlackTopicQuery;
+        _updateSlackTopicCommand = updateSlackTopicCommand;
     }
 
     public async Task Execute()
     {
-        await _updateRotaCommand.Execute("hello, world");
+        var topic = await _getCurrentSlackTopicQuery.Execute();
+        await _updateSlackTopicCommand.Execute("hello, world");
     }
 }
