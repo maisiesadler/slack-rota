@@ -1,9 +1,9 @@
 namespace Rota.Test;
 
-public class UnitTest1
+public class IntegrationTests
 {
     [Fact]
-    public async Task Test1()
+    public async Task CanSendSlackMessage()
     {
         var slackClient = new SlackHttpClient(new HttpClient());
         await slackClient.Execute("hello, world");
