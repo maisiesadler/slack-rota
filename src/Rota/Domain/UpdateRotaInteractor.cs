@@ -14,6 +14,6 @@ public class UpdateRotaInteractor
 
     public async Task Execute()
     {
-        await _updateRotaCommand.Execute(SlackReporterConfiguration.Channel, "hello, world");
+        await _updateRotaCommand.Execute("hello, world");
     }
 }

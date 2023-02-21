@@ -15,6 +15,6 @@ public class UpdateRotaInteractorTests
         await interactor.Execute();
 
         // Assert
-        updateRotaCommand.Verify(c => c.Execute("", "hello, world"), Times.Once);
+        updateRotaCommand.Verify(c => c.Execute("hello, world"), Times.Once);
     }
 }

@@ -13,8 +13,9 @@ public class UpdateSlackTopicCommand : IUpdateSlackTopicCommand
         _httpClient = httpClient;
     }
 
-    public async Task Execute(string channel, string topic)
+    public async Task Execute(string topic)
     {
+        var channel = SlackReporterConfiguration.Channel;
         var payload = new { channel, topic };
 
         var r = await _httpClient.PostAsJsonAsync("/api/conversations.setTopic", payload);
