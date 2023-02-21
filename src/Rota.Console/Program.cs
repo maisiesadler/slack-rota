@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Rota.Console;
-using Rota.Domain;
+using Rota;
 
 var serviceProvider = Services.BuildServiceProvider();
 

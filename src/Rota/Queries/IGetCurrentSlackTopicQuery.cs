@@ -1,4 +1,4 @@
-namespace Rota.Domain.Queries;
+namespace Rota.Queries;
 
 public interface IGetCurrentSlackTopicQuery
 {

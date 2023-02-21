@@ -1,8 +1,7 @@
 using Microsoft.Extensions.Options;
 using Moq;
-using Rota.Domain;
-using Rota.Domain.Commands;
-using Rota.Domain.Queries;
+using Rota.Commands;
+using Rota.Queries;
 
 namespace Rota.Test;
 

@@ -1,4 +1,4 @@
-namespace Rota.Domain.Queries;
+namespace Rota.Queries;
 
 public record SlackUser(string userId);
 

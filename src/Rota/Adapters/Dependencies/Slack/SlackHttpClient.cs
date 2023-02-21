@@ -1,4 +1,4 @@
-namespace Rota.Infrastructure.Commands;
+namespace Rota.Adapters.Commands;
 
 public class SlackHttpException : Exception
 {

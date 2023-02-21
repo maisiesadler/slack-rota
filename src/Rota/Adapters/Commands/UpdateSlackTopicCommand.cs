@@ -1,8 +1,8 @@
 using System.Net.Http.Json;
-using Rota.Domain.Commands;
-using Rota.Infrastructure.Dependencies.Slack;
+using Rota.Commands;
+using Rota.Adapters.Dependencies.Slack;
 
-namespace Rota.Infrastructure.Commands;
+namespace Rota.Adapters.Commands;
 
 public class UpdateSlackTopicCommand : IUpdateSlackTopicCommand
 {

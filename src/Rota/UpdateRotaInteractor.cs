@@ -1,9 +1,9 @@
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Options;
-using Rota.Domain.Commands;
-using Rota.Domain.Queries;
+using Rota.Commands;
+using Rota.Queries;
 
-namespace Rota.Domain;
+namespace Rota;
 
 public record RotaOptions
 {

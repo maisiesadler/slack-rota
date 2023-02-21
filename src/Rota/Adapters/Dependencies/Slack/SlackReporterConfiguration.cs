@@ -1,4 +1,4 @@
-namespace Rota.Infrastructure.Dependencies.Slack;
+namespace Rota.Adapters.Dependencies.Slack;
 
 internal static class SlackReporterConfiguration
 {

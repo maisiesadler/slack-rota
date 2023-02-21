@@ -1,4 +1,4 @@
-namespace Rota.Domain.Commands;
+namespace Rota.Commands;
 
 public interface IUpdateSlackTopicCommand
 {

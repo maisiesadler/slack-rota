@@ -1,14 +1,20 @@
 using Microsoft.Extensions.DependencyInjection;
-using Rota.Domain.Commands;
-using Rota.Domain.Queries;
-using Rota.Infrastructure.Commands;
-using Rota.Infrastructure.Dependencies.Slack;
-using Rota.Infrastructure.Queries;
+using Rota.Commands;
+using Rota.Queries;
+using Rota.Adapters.Commands;
+using Rota.Adapters.Dependencies.Slack;
+using Rota.Adapters.Queries;
 
-namespace Rota.Infrastructure;
+namespace Rota;
 
 public static class ServiceCollectionExtensions
 {
+    public static IServiceCollection AddDomain(this IServiceCollection services)
+    {
+        services.AddTransient<UpdateRotaInteractor>();
+        return services;
+    }
+
     public static IServiceCollection AddAdapters(this IServiceCollection services)
     {
         services.AddTransient<IUpdateSlackTopicCommand, UpdateSlackTopicCommand>();

@@ -1,7 +1,5 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Rota.Domain;
-using Rota.Infrastructure;
 
 namespace Rota.Console;
 

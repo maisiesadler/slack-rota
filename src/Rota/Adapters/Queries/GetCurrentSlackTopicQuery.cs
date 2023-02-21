@@ -1,10 +1,9 @@
-using System.Net.Http.Json;
 using System.Text.Json.Nodes;
-using Rota.Domain.Queries;
-using Rota.Infrastructure.Commands;
-using Rota.Infrastructure.Dependencies.Slack;
+using Rota.Queries;
+using Rota.Adapters.Commands;
+using Rota.Adapters.Dependencies.Slack;
 
-namespace Rota.Infrastructure.Queries;
+namespace Rota.Adapters.Queries;
 
 public class GetCurrentSlackTopicQuery : IGetCurrentSlackTopicQuery
 {
