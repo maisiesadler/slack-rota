@@ -9,20 +9,23 @@ public class UpdateRotaInteractorTests
 {
     private readonly UpdateRotaInteractor _interactor;
     private readonly Mock<IGetCurrentSlackTopicQuery> _getCurrentSlackTopicQuery;
+    private readonly Mock<IGetSlackUsersQuery> _getSlackUsersQuery;
     private readonly Mock<IUpdateSlackTopicCommand> _updateSlackTopicCommand;
 
     public UpdateRotaInteractorTests()
     {
         _getCurrentSlackTopicQuery = new Mock<IGetCurrentSlackTopicQuery>();
+        _getSlackUsersQuery = new Mock<IGetSlackUsersQuery>();
         _updateSlackTopicCommand = new Mock<IUpdateSlackTopicCommand>();
 
         _interactor = new UpdateRotaInteractor(
             _getCurrentSlackTopicQuery.Object,
+            _getSlackUsersQuery.Object,
             _updateSlackTopicCommand.Object);
     }
 
     [Fact]
-    public async Task InteractorAppendsLetterToTopic()
+    public async Task CurrentTopicRetrieved_AppendsLetterToTopic()
     {
         // Arrange
         _getCurrentSlackTopicQuery.Setup(q => q.Execute())
@@ -34,5 +37,22 @@ public class UpdateRotaInteractorTests
         // Assert
         _getCurrentSlackTopicQuery.Verify(c => c.Execute(), Times.Once);
         _updateSlackTopicCommand.Verify(c => c.Execute("This is the current topicd"), Times.Once);
+    }
+
+    [Fact]
+    public async Task UsersRetrieved_TopicSetToAllUsers()
+    {
+        // Arrange
+        _getCurrentSlackTopicQuery.Setup(q => q.Execute())
+            .ReturnsAsync("This is the current topic");
+        _getSlackUsersQuery.Setup(q => q.Execute())
+            .ReturnsAsync(new[] { new SlackUser("U123456"), new SlackUser("U987654") });
+
+        // Act
+        await _interactor.Execute();
+
+        // Assert
+        _getCurrentSlackTopicQuery.Verify(c => c.Execute(), Times.Once);
+        _updateSlackTopicCommand.Verify(c => c.Execute("Available: <@U123456>, <@U987654>"), Times.Once);
     }
 }
