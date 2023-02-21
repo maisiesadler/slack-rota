@@ -13,6 +13,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddTransient<IUpdateSlackTopicCommand, UpdateSlackTopicCommand>();
         services.AddTransient<IGetCurrentSlackTopicQuery, GetCurrentSlackTopicQuery>();
+        services.AddTransient<IGetSlackUsersQuery, GetSlackUsersQuery>();
 
         services.AddHttpClient<SlackHttpClient>(client =>
         {
