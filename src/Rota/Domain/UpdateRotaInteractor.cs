@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Rota.Domain.Commands;
 using Rota.Domain.Queries;
 
@@ -24,19 +25,43 @@ public class UpdateRotaInteractor
         var currentTopic = await _getCurrentSlackTopicQuery.Execute(); ;
         var users = await _getSlackUsersQuery.Execute();
 
-        var nextTopic = GetNextTopic(users);
+        var nextTopic = GetNextTopic(currentTopic, users);
+
         await _updateSlackTopicCommand.Execute(nextTopic);
     }
 
-    private static string GetNextTopic(SlackUser[] users)
+    private static string GetNextTopic(string currentTopic, SlackUser[] users)
     {
-        var orderedUsers = users.OrderBy(u => u.userId).ToArray();
+        var currentUser = GetCurrentUser(currentTopic);
 
-        if (orderedUsers.Length == 0)
+        if (users.Length == 0)
             return "No users found";
 
-        var selectedUser = orderedUsers[0];
+        var orderedUsers = users.OrderBy(u => u.userId).ToArray();
+
+        var nextUserIndex = GetNextUserIndex(currentUser, orderedUsers);
+        var selectedUser = orderedUsers[nextUserIndex];
 
         return $"Next user: {$"<@{selectedUser.userId}>"}";
+    }
+
+    private static string? GetCurrentUser(string currentTopic)
+    {
+        var match = Regex.Match(currentTopic, @"\<@([\d\w]+)\>", RegexOptions.Compiled, TimeSpan.FromSeconds(1));
+        if (!match.Success) return null;
+
+        return match.Groups[1].Value;
+    }
+
+    private static int GetNextUserIndex(string? currentUser, SlackUser[] orderedUsers)
+    {
+        if (currentUser == null) return 0;
+
+        for (int i = 0; i < orderedUsers.Length; i++)
+        {
+            if (orderedUsers[i].userId == currentUser) return (i + 1) % orderedUsers.Length;
+        }
+
+        return 0;
     }
 }
