@@ -5,7 +5,7 @@ using Rota.Infrastructure;
 
 namespace Rota.Console;
 
-internal class Services
+internal static class Services
 {
     public static IServiceProvider BuildServiceProvider()
     {
@@ -15,14 +15,24 @@ internal class Services
 
         services
             .AddDomain()
-            .AddAdapters();
+            .AddAdapters()
+            .BindOptions(config);
 
         services.AddTransient<UpdateRotaInteractor>();
 
         return services.BuildServiceProvider();
     }
 
-    static IConfiguration BuildConfiguration()
+    private static IServiceCollection BindOptions(this IServiceCollection services, IConfiguration configuration)
+    {
+        var rotaOptions = configuration.GetSection("RotaOptions");
+        var builder = services.AddOptions<RotaOptions>()
+            .Bind(configuration);
+
+        return services;
+    }
+
+    private static IConfiguration BuildConfiguration()
     {
         var configuration = new ConfigurationBuilder()
             .AddJsonFile("appsettings.json")
