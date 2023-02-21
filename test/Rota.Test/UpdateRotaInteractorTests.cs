@@ -54,19 +54,22 @@ public class UpdateRotaInteractorTests
         _updateSlackTopicCommand.Verify(c => c.Execute("Next user: <@U123456>"), Times.Once);
     }
 
-    [Fact]
-    public async Task UserFound_ChooseUserAlphabetically()
+    [Theory]
+    [InlineData("U123456", "U234567")]
+    [InlineData("U234567", "U345678")]
+    [InlineData("U345678", "U123456")]
+    public async Task UserFound_ChooseUserAlphabetically(string current, string next)
     {
         // Arrange
         _getCurrentSlackTopicQuery.Setup(q => q.Execute())
-            .ReturnsAsync("Next user: <@U23456>");
+            .ReturnsAsync($"Next user: <@{current}>");
         _getSlackUsersQuery.Setup(q => q.Execute())
-            .ReturnsAsync(new[] { new SlackUser("U23456"), new SlackUser("U123456"), new SlackUser("U34567") });
+            .ReturnsAsync(new[] { new SlackUser("U234567"), new SlackUser("U123456"), new SlackUser("U345678") });
 
         // Act
         await _interactor.Execute();
 
         // Assert
-        _updateSlackTopicCommand.Verify(c => c.Execute("Next user: <@U34567>"), Times.Once);
+        _updateSlackTopicCommand.Verify(c => c.Execute($"Next user: <@{next}>"), Times.Once);
     }
 }
